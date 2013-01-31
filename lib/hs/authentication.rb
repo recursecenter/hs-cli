@@ -7,6 +7,10 @@ module HS
 
     module_function
 
+    def api_secret
+      File.read(HSCONFIG_FILE)
+    end
+
     def require_credentials
       store_api_secret unless api_secret_stored?
       store_github_creds unless github_creds_stored?
