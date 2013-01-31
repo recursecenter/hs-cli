@@ -41,4 +41,6 @@ module HS
     end
   end
 
+  class CommandError < Exception
+  end
 end

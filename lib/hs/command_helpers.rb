@@ -14,7 +14,8 @@ module HS
     end
 
     def open_editor(path)
-      system("#{ENV['EDITOR']} #{path}")
+      invocation = "#{ENV['EDITOR']} #{path}"
+      system(invocation) or raise CommandError, "#{invocation} gave exit status #{$?.exitstatus}"
     end
 
     def temp_file
