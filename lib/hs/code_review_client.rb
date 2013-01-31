@@ -1,3 +1,5 @@
+require 'net/http'
+
 module HS
   API_URL = "http://localhost:5000/api/alpha"
 
@@ -43,9 +45,9 @@ module HS
 
     def post(resource, data)
       uri = URI.parse "#{API_URL}/codereview/#{resource}"
-      http = Net::HTTP.new uri.host, uri.port
+      http = ::Net::HTTP.new uri.host, uri.port
 
-      request = Net::HTTP::Post.new uri.request_uri
+      request = ::Net::HTTP::Post.new uri.request_uri
       request.set_form_data @default_data.merge(data)
 
       response = http.request(request)

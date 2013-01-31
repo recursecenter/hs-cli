@@ -1,4 +1,6 @@
 require 'octokit'
+require 'git'
+require 'net/http'
 
 module HS
 
@@ -21,24 +23,79 @@ module HS
     end
 
     def request
-      require_message("\n# Review request description")
-      puts "requesting #{@opts}"
+      require_message
+      repo = File.basename(Dir.getwd)
+      resp = @hs.request body: @opts[:message],
+                         repo: repo,
+                         branch: @opts[:branch]
+
+      # HTTPResponse#value raises an HTTPError if the status code is not 2xx
+      begin resp.value
+        puts "Hacker School code review requested for #{repo}:#{@opts[:branch]}. Please remember to push recent changes to GitHub!"
+      rescue ::Net::HTTPError
+        puts resp.body
+      end
     end
 
     def review
-      puts "reviewing #{@opts}"
+      args = parse_review_args
+      review_branch = "#{args[:branch]}-review"
+
+      # sleep to give GH a chance to update refs
+      (clone_url = gh_fork "#{args[:username]}/#{args[:repo]}") and sleep(1)
+      git_repo = clone_locally clone_url, args[:name] if clone_url
+
+      if git_repo
+        git_repo.branch(review_branch).checkout
+        git_repo.push(git_repo.remote('origin'), review_branch)
+        @hs.respond url: "#{clone_url.chomp('.git')}/tree/#{review_branch}",
+                    repo: args[:repo],
+                    branch: review_branch,
+                    base_repo: args[:repo],
+                    base_branch: args[:branch],
+                    completed: false
+
+        puts "A review branch (#{review_branch}) has been created in local repository #{args[:name]}. Happy reviewing!"
+      else
+        puts "Failed"
+      end
     end
 
     def submit
-      require_message("\n# Pull request description")
+      require_message
       puts "submitting #{@opts}"
     end
 
     private
 
-    def require_message(initial_value)
+    def require_message(initial_value='')
       @opts[:message] ||= CommandHelpers.editor_input(initial_value)
     end
+
+    def parse_review_args
+      repo_arg, name = @args
+      username, repo, branch = repo_arg.split /\/|:/
+
+      unless username and repo
+        raise CommandError, "Username and repo must be specified."
+      end
+
+      { :username => username,
+        :repo => repo,
+        :branch => branch || 'master',
+        :name => name || repo }
+    end
+
+    def gh_fork(repo_string)
+      puts "Forking..."
+      @gh.fork(repo_string)[:clone_url]
+    end
+
+    def clone_locally(url, name)
+      puts "Cloning locally..."
+      ::Git.clone(url, name)
+    end
+
   end
 
   class CommandError < Exception
