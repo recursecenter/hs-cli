@@ -1,4 +1,4 @@
 require 'hs/version.rb'
-
-# Add requires for other files you add to your project here, so
-# you just need to require this one file in your bin file
+require 'hs/code_review_client.rb'
+require 'hs/command_helpers.rb'
+require 'hs/authentication.rb'

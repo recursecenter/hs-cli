@@ -3,32 +3,52 @@ require 'gli'
 require 'hs'
 
 include GLI::App
+include HS::CommandHelpers
 
-program_desc 'Describe your application here'
+program_desc 'Hacker School command line tools'
 
 version HS::VERSION
 
-desc 'Describe some switch here'
-switch [:s,:switch]
+desc 'Request code review from another Hacker Schooler'
+command :request do |c|
+  c.desc "Specify a branch that you'd like to be reviewed (default: master)"
+  c.default_value 'master'
+  c.flag [:b, :branch]
 
-desc 'Describe some flag here'
-default_value 'the default'
-arg_name 'The name of the argument'
-flag [:f,:flagname]
+  c.desc "Review request description"
+  c.flag [:m, :message]
+
+  c.action do |global_options, options, args|
+    puts "request command ran #{options}"
+  end
+end
+
+desc "Review another Hacker Schooler's code"
+arg_name "github-username/repo[:branch] [folder]"
+command :review do |c|
+  c.desc "Specify the local branch that you'd like to make changes in"
+  c.flag [:b, :branch]
+
+  c.action do |global_options, options, args|
+    puts "review command ran. options: #{options}\nargs: #{args}"
+  end
+end
+
+desc 'Submit code review'
+command :submit do |c|
+  c.desc "Pull request description"
+  c.flag [:m, :message]
+
+  c.action do |global_options, options, args|
+    puts "submit command ran #{options}"
+  end
+end
 
 pre do |global,command,options,args|
-  # Pre logic here
-  # Return true to proceed; false to abort and not call the
-  # chosen command
-  # Use skips_pre before a command to skip this block
-  # on that command only
-  true
+  HS::Authentication.require_credentials
 end
 
 post do |global,command,options,args|
-  # Post logic here
-  # Use skips_post before a command to skip this
-  # block on that command only
 end
 
 on_error do |exception|
