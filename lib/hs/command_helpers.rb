@@ -1,3 +1,5 @@
+require 'tempfile'
+
 module HS
   module CommandHelpers
 
@@ -16,7 +18,7 @@ module HS
     end
 
     def temp_file
-      file = Tempfile.new('hs')
+      file = ::Tempfile.new('hs')
       yield file
     ensure
       file.close(true) if file

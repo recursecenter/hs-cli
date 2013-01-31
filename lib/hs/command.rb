@@ -16,20 +16,28 @@ module HS
       @opts = opts
       @args = args
       @hs = HS::CodeReviewClient.new(HS::Authentication.api_secret)
-      Octokit.netrc = true
-      @gh = OctoKit.new
+      ::Octokit.netrc = true
+      @gh = ::Octokit.new
     end
 
     def request
-      puts "requesting"
+      require_message("\n# Review request description")
+      puts "requesting #{@opts}"
     end
 
     def review
-      puts "reviewing"
+      puts "reviewing #{@opts}"
     end
 
     def submit
-      puts "submitting"
+      require_message("\n# Pull request description")
+      puts "submitting #{@opts}"
+    end
+
+    private
+
+    def require_message(initial_value)
+      @opts[:message] ||= CommandHelpers.editor_input(initial_value)
     end
   end
 
