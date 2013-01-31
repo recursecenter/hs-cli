@@ -64,7 +64,26 @@ module HS
 
     def submit
       require_message
-      puts "submitting #{@opts}"
+
+      git_repo = Git.init '.'
+      head = git_repo.current_branch
+      base = head.chomp "-review"
+      base_url = git_repo.remote('upstream').url.chomp('.git')
+      head_url = git_repo.remote('origin').url.chomp('.git')
+      userhead = "#{extract_username_from_url head_url}:#{head}"
+      upstream_repo = ::Octokit::Repository.from_url(base_url)
+      resp = @gh.create_pull_request(upstream_repo, base, userhead, "Code review", @opts[:message])
+
+      pull_url = resp[:html_url]
+      repo_name = upstream_repo.name.chomp '.git'
+      @hs.respond url: pull_url,
+                  repo: repo_name,
+                  branch: head,
+                  base_repo: repo_name,
+                  base_branch: base,
+                  completed: true
+
+      puts "Code review pull request submitted."
     end
 
     private
@@ -98,6 +117,9 @@ module HS
       ::Git.clone(url, name)
     end
 
+    def extract_username_from_url(url)
+      /https:\/\/github.com\/(.*)\/.*/.match(url)[1]
+    end
   end
 
   class CommandError < Exception
