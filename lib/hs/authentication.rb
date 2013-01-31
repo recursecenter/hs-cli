@@ -49,7 +49,7 @@ module HS
 
     def gets_non_empty(prompt)
       print prompt
-      input = gets.chomp
+      input = $stdin.gets.chomp
       input.empty? ? gets_non_empty(prompt) : input
     end
   end
