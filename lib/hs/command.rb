@@ -42,12 +42,13 @@ module HS
       review_branch = "#{args[:branch]}-review"
 
       # sleep to give GH a chance to update refs
-      (clone_url = gh_fork "#{args[:username]}/#{args[:repo]}") and sleep(1)
+      (clone_url, source_url = gh_fork "#{args[:username]}/#{args[:repo]}") and sleep(1)
       git_repo = clone_locally clone_url, args[:name] if clone_url
 
       if git_repo
         git_repo.branch(review_branch).checkout
         git_repo.push(git_repo.remote('origin'), review_branch)
+        git_repo.add_remote('upstream', source_url)
         @hs.respond url: "#{clone_url.chomp('.git')}/tree/#{review_branch}",
                     repo: args[:repo],
                     branch: review_branch,
@@ -88,7 +89,8 @@ module HS
 
     def gh_fork(repo_string)
       puts "Forking..."
-      @gh.fork(repo_string)[:clone_url]
+      resp = @gh.fork(repo_string)
+      [resp[:clone_url], resp[:source][:clone_url]]
     end
 
     def clone_locally(url, name)
