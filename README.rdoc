@@ -1,6 +1,0 @@
-= hs
-
-Describe your project here
-
-:include:hs.rdoc
-

@@ -1,5 +1,0 @@
-= hs
-
-Generate this with
-    hs rdoc
-After you have described your command line interface
