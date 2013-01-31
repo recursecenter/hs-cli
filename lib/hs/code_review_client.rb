@@ -1,7 +1,7 @@
 require 'net/http'
 
 module HS
-  API_URL = "http://localhost:5000/api/alpha"
+  API_URL = ENV['HS_API_URL'] || "http://localhost:5000/api/alpha"
 
   class CodeReviewClient
     def initialize(api_secret)
