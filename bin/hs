@@ -7,9 +7,10 @@ include HS::CommandHelpers
 
 program_desc 'Hacker School command line tools'
 
+desc "Show version"
 version HS::VERSION
 
-desc 'Request code review from another Hacker Schooler'
+desc "Request code review from another Hacker Schooler"
 command :request do |c|
   c.desc "Specify a branch that you'd like to be reviewed (default: master)"
   c.default_value 'master'
@@ -18,9 +19,7 @@ command :request do |c|
   c.desc "Review request description"
   c.flag [:m, :message]
 
-  c.action do |global_options, options, args|
-    puts "request command ran #{options}"
-  end
+  c.action &HS::Command.dispatch(c)
 end
 
 desc "Review another Hacker Schooler's code"
@@ -29,9 +28,7 @@ command :review do |c|
   c.desc "Specify the local branch that you'd like to make changes in"
   c.flag [:b, :branch]
 
-  c.action do |global_options, options, args|
-    puts "review command ran. options: #{options}\nargs: #{args}"
-  end
+  c.action &HS::Command.dispatch(c)
 end
 
 desc 'Submit code review'
@@ -39,9 +36,7 @@ command :submit do |c|
   c.desc "Pull request description"
   c.flag [:m, :message]
 
-  c.action do |global_options, options, args|
-    puts "submit command ran #{options}"
-  end
+  c.action &HS::Command.dispatch(c)
 end
 
 pre do |global,command,options,args|
@@ -52,7 +47,6 @@ post do |global,command,options,args|
 end
 
 on_error do |exception|
-  # Error logic here
   # return false to skip default error handling
   true
 end
