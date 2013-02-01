@@ -95,7 +95,7 @@ module HS
 
     def prompt_message(initial_value)
       input = CommandHelpers.editor_input(initial_value)
-      input.split("\n").reject { |l| l.starts_with? "#" }.join("\n")
+      input.split("\n").reject { |l| l.start_with? "#" }.join("\n")
     end
 
     def parse_review_args
