@@ -23,7 +23,8 @@ module HS
     end
 
     def request
-      require_message
+      require_message "\n# Code review request description"
+
       repo = File.basename(Dir.getwd)
       resp = @hs.request body: @opts[:message],
                          repo: repo,
@@ -63,7 +64,7 @@ module HS
     end
 
     def submit
-      require_message
+      require_message "\n# Pull request description"
 
       git_repo = Git.init '.'
       head = git_repo.current_branch
@@ -89,7 +90,12 @@ module HS
     private
 
     def require_message(initial_value='')
-      @opts[:message] ||= CommandHelpers.editor_input(initial_value)
+      @opts[:message] ||= prompt_message initial_value
+    end
+
+    def prompt_message(initial_value)
+      input = CommandHelpers.editor_input(initial_value)
+      input.split("\n").reject { |l| l.starts_with? "#" }.join("\n")
     end
 
     def parse_review_args
