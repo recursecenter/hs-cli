@@ -32,7 +32,7 @@ module HS
 
       # HTTPResponse#value raises an HTTPError if the status code is not 2xx
       begin resp.value
-        puts "Hacker School code review requested for #{repo}:#{@opts[:branch]}. Please remember to push recent changes to GitHub!"
+        puts "Hacker School code review requested for #{repo}:#{@opts[:branch]}.\nPlease remember to push recent changes to GitHub!"
       rescue ::Net::HTTPError
         puts resp.body
       end
@@ -57,7 +57,7 @@ module HS
                     base_branch: args[:branch],
                     completed: false
 
-        puts "A review branch (#{review_branch}) has been created in local repository #{args[:name]}. Happy reviewing!"
+        puts "A review branch (#{review_branch}) has been created in local repository #{args[:name]}.\nHappy reviewing!"
       else
         puts "Failed"
       end
