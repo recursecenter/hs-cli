@@ -1,10 +1,16 @@
 source :rubygems
 
-gem 'pry'
-gem 'rspec'
-
 gem 'netrc'
 gem 'octokit'
 gem 'git'
+
+group :dev do
+  gem 'pry'
+end
+
+group :test do
+  gem 'rspec'
+  gem 'webmock'
+end
 
 gemspec
