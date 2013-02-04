@@ -3,6 +3,10 @@ require 'spec_helper'
 describe HS::Authentication do
   include HS::Authentication
 
+  before do
+    $stdout.stub(:write)
+  end
+
   describe '::gets_non_empty' do
     it "shouldn't return newlines" do
       $stdin.should_receive(:gets).and_return("foo\n")
