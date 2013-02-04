@@ -3,7 +3,6 @@
 ```
 hs request [-b,--branch] [-m,--message]
 ```
-Example:
 ```sh
 ~/dev/my-project $ git branch
 * master
@@ -22,7 +21,6 @@ Hacker School code review requested for my-project:new-feature. Please remember 
 hs review gh-username/repo[:branch] [-b,--branch] [folder]
 hs submit [-m,--message]
 ```
-Example:
 ```sh
 ~/dev $ hs review username/my-project:new-feature new-feature-review && cd new-feature-review
 ## forks username/my-project using hub
