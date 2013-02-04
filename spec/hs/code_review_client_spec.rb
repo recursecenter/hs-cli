@@ -15,21 +15,29 @@ describe HS::CodeReviewClient do
   end
 
   describe "#request" do
-    it "requires a :body and :repo" do
-      [{}, {:body => true}, {:repo => true}].each do |data|
-        expect { @client.request(data) }.to raise_error(HS::APIError)
-      end
+    data = [{}, {:body => true}, {:repo => true}]
 
+    data.each do |args|
+      it "errors on insufficient args (#{args})" do
+        expect { @client.request(args) }.to raise_error(HS::APIError)
+      end
+    end
+
+    it "POSTs with sufficient args" do
       @client.request(:body => true, :repo => true).code.should eq("200")
     end
   end
 
   describe "#respond" do
-    it "requires a :url, :repo, and :base_repo" do
-      [{}, {:url => true}, {:url => true, :repo => true}].each do |data|
-        expect { @client.respond(data) }.to raise_error(HS::APIError)
-      end
+    data = [{}, {:url => true}, {:url => true, :repo => true}]
 
+    data.each do |args|
+      it "errors on insufficient args (#{args})" do
+        expect { @client.respond(args) }.to raise_error(HS::APIError)
+      end
+    end
+
+    it "POSTs with sufficient args" do
       @client.respond(:url => true, :repo => true, :base_repo => true).code.
         should eq("200")
     end
