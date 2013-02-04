@@ -100,11 +100,13 @@ module HS
 
     def parse_review_args
       repo_arg, name = @args
-      username, repo, branch = repo_arg.split /\/|:/
+      username, repo_branch = repo_arg.split '/'
 
-      unless username and repo
+      unless username && repo_branch
         raise CommandError, "Username and repo must be specified."
       end
+
+      repo, branch = repo_branch.split ':'
 
       { :username => username,
         :repo => repo,
@@ -124,7 +126,7 @@ module HS
     end
 
     def extract_username_from_url(url)
-      /https:\/\/github.com\/(.*)\/.*/.match(url)[1]
+      /https?:\/\/(www\.)?github\.com\/(?<un>[^\/]*)(\/.*)?/.match(url)[:un]
     end
   end
 
