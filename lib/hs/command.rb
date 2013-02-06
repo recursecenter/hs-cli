@@ -3,33 +3,33 @@ require 'git'
 require 'net/http'
 
 module HS
-
   class Command
-    def self.dispatch(command)
+    def self.generate_action_proc(command)
       Proc.new do |global_opts, opts, args|
-        self.new(global_opts, opts, args).execute(command.name)
+        self.new(global_opts, opts, args).send(command.name)
       end
     end
-
-    alias_method :execute, :send
 
     def initialize(global_opts, opts, args)
       @global_opts = global_opts
       @opts = opts
       @args = args
       @hs = HS::CodeReviewClient.new(HS::Authentication.api_secret)
-      ::Octokit.netrc = true
+
+      if File.exists?(File.expand_path(File.join("~", ".netrc")))
+        ::Octokit.netrc = true
+      end
       @gh = ::Octokit.new
     end
 
     def request
-      require_message "\n# Code review request description"
+      require_message("\n# Code review request description")
 
       origin_data = remote_data(::Git.init('.'), 'origin')
-      resp = @hs.request body: @opts[:message],
-                         repo: origin_data[:repo],
-                         branch: @opts[:branch],
-                         github_account: origin_data[:username]
+      resp = @hs.request(:body => @opts[:message],
+                         :repo => origin_data[:repo],
+                         :branch => @opts[:branch],
+                         :github_account => origin_data[:username])
 
       # HTTPResponse#value raises an HTTPError if the status code is not 2xx
       begin resp.value
@@ -44,48 +44,59 @@ module HS
       review_branch = "#{args[:branch]}-review"
 
       # sleep to give GH a chance to update refs
-      (clone_url, source_url = gh_fork "#{args[:username]}/#{args[:repo]}") and sleep(1)
-      git_repo = clone_locally clone_url, args[:name] if clone_url
+      # TODO: Clone from origin
+      clone_url, source_url = gh_fork("#{args[:username]}/#{args[:repo]}")
 
-      if git_repo
-        git_repo.branch(review_branch).checkout
-        git_repo.push(git_repo.remote('origin'), review_branch)
-        git_repo.add_remote('upstream', source_url)
-        @hs.respond url: "#{clone_url.chomp('.git')}/tree/#{review_branch}",
-                    repo: args[:repo],
-                    branch: review_branch,
-                    base_repo: args[:repo],
-                    base_branch: args[:branch],
-                    base_github: parse_github_url(source_url)[:username],
-                    completed: false
+      sleep(1)
 
-        puts "A review branch (#{review_branch}) has been created in local repository #{args[:name]}.\nHappy reviewing!"
-      else
-        puts "Failed"
+      # TODO: make error message
+      unless clone_url
+        $stderr.puts "Error message"
+        exit(1)
       end
+
+      git_repo = clone_locally(clone_url, args[:name])
+
+      unless git_repo
+        $stderr.puts "Error message 2"
+        exit(1)
+      end
+
+      git_repo.branch(review_branch).checkout
+      git_repo.push(git_repo.remote('origin'), review_branch)
+      git_repo.add_remote('upstream', source_url)
+      @hs.respond(:url => "#{clone_url.chomp('.git')}/tree/#{review_branch}",
+                  :repo => args[:repo],
+                  :branch => review_branch,
+                  :base_repo => args[:repo],
+                  :base_branch => args[:branch],
+                  :base_github => parse_github_url(source_url)[:username],
+                  :completed => false)
+
+      puts "A review branch (#{review_branch}) has been created in local repository #{args[:name]}.\nHappy reviewing!"
     end
 
     def submit
-      require_message "\n# Pull request description"
+      require_message("\n# Pull request description")
 
-      git_repo = Git.init '.'
+      git_repo = Git.init('.')
       origin_data = remote_data(git_repo, 'origin')
       upstream_data = remote_data(git_repo, 'upstream')
 
       head = git_repo.current_branch
-      base = head.chomp "-review"
+      base = head.chomp("-review")
 
       userhead = "#{upstream_data[:username]}:#{head}"
       upstream_repo = ::Octokit::Repository.from_url(upstream_data[:url])
       resp = @gh.create_pull_request(upstream_repo, base, userhead, "Code review", @opts[:message])
 
       pull_url = resp[:html_url]
-      @hs.respond url: pull_url,
-                  repo: origin_data[:repo],
-                  branch: head,
-                  base_repo: upstream_data[:repo],
-                  base_branch: base,
-                  completed: true
+      @hs.respond(:url => pull_url,
+                  :repo => origin_data[:repo],
+                  :branch => head,
+                  :base_repo => upstream_data[:repo],
+                  :base_branch => base,
+                  :completed => true)
 
       puts "Code review pull request submitted."
     end
@@ -128,6 +139,7 @@ module HS
       ::Git.clone(url, name)
     end
 
+    # TODO: Use URI
     def parse_github_url(url)
       /.*github\.com\/(?<username>[^\/]*)\/(?<repo>[^\/]*)(\/.*)?/.match(url)
     end
@@ -138,6 +150,6 @@ module HS
     end
   end
 
-  class CommandError < Exception
+  class CommandError < StandardError
   end
 end

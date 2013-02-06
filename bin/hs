@@ -3,7 +3,6 @@ require 'gli'
 require 'hs'
 
 include GLI::App
-include HS::CommandHelpers
 
 program_desc 'Hacker School command line tools'
 
@@ -19,7 +18,7 @@ command :request do |c|
   c.desc "Review request description"
   c.flag [:m, :message]
 
-  c.action &HS::Command.dispatch(c)
+  c.action &HS::Command.generate_action_proc(c)
 end
 
 desc "Review another Hacker Schooler's code"
@@ -28,7 +27,7 @@ command :review do |c|
   c.desc "Specify the local branch that you'd like to make changes in"
   c.flag [:b, :branch]
 
-  c.action &HS::Command.dispatch(c)
+  c.action &HS::Command.generate_action_proc(c)
 end
 
 desc 'Submit code review'
@@ -36,7 +35,7 @@ command :submit do |c|
   c.desc "Pull request description"
   c.flag [:m, :message]
 
-  c.action &HS::Command.dispatch(c)
+  c.action &HS::Command.generate_action_proc(c)
 end
 
 pre do |global,command,options,args|
