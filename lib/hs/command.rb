@@ -25,14 +25,15 @@ module HS
     def request
       require_message "\n# Code review request description"
 
-      repo = File.basename(Dir.getwd)
+      origin_data = remote_data(::Git.init('.'), 'origin')
       resp = @hs.request body: @opts[:message],
-                         repo: repo,
-                         branch: @opts[:branch]
+                         repo: origin_data[:repo],
+                         branch: @opts[:branch],
+                         github_account: origin_data[:username]
 
       # HTTPResponse#value raises an HTTPError if the status code is not 2xx
       begin resp.value
-        puts "Hacker School code review requested for #{repo}:#{@opts[:branch]}.\nPlease remember to push recent changes to GitHub!"
+        puts "Hacker School code review requested for #{origin_data[:repo]}:#{@opts[:branch]}.\nPlease remember to push recent changes to GitHub!"
       rescue ::Net::HTTPError
         puts resp.body
       end
@@ -55,6 +56,7 @@ module HS
                     branch: review_branch,
                     base_repo: args[:repo],
                     base_branch: args[:branch],
+                    base_github: parse_github_url(source_url)[:username],
                     completed: false
 
         puts "A review branch (#{review_branch}) has been created in local repository #{args[:name]}.\nHappy reviewing!"
@@ -67,20 +69,21 @@ module HS
       require_message "\n# Pull request description"
 
       git_repo = Git.init '.'
+      origin_data = remote_data(git_repo, 'origin')
+      upstream_data = remote_data(git_repo, 'upstream')
+
       head = git_repo.current_branch
       base = head.chomp "-review"
-      base_url = git_repo.remote('upstream').url.chomp('.git')
-      head_url = git_repo.remote('origin').url.chomp('.git')
-      userhead = "#{extract_username_from_url head_url}:#{head}"
-      upstream_repo = ::Octokit::Repository.from_url(base_url)
+
+      userhead = "#{upstream_data[:username]}:#{head}"
+      upstream_repo = ::Octokit::Repository.from_url(upstream_data[:url])
       resp = @gh.create_pull_request(upstream_repo, base, userhead, "Code review", @opts[:message])
 
       pull_url = resp[:html_url]
-      repo_name = upstream_repo.name.chomp '.git'
       @hs.respond url: pull_url,
-                  repo: repo_name,
+                  repo: origin_data[:repo],
                   branch: head,
-                  base_repo: repo_name,
+                  base_repo: upstream_data[:repo],
                   base_branch: base,
                   completed: true
 
@@ -100,13 +103,13 @@ module HS
 
     def parse_review_args
       repo_arg, name = @args
-      username, repo_branch = repo_arg.split '/'
+      username, repo_branch = repo_arg.split('/')
 
       unless username && repo_branch
         raise CommandError, "Username and repo must be specified."
       end
 
-      repo, branch = repo_branch.split ':'
+      repo, branch = repo_branch.split(':')
 
       { :username => username,
         :repo => repo,
@@ -125,8 +128,13 @@ module HS
       ::Git.clone(url, name)
     end
 
-    def extract_username_from_url(url)
-      /https?:\/\/(www\.)?github\.com\/(?<un>[^\/]*)(\/.*)?/.match(url)[:un]
+    def parse_github_url(url)
+      /.*github\.com\/(?<username>[^\/]*)\/(?<repo>[^\/]*)(\/.*)?/.match(url)
+    end
+
+    def remote_data(git_repo, remote)
+      data = parse_github_url(git_repo.remote(remote).url.chomp('.git'))
+      {:url => data[0], :username => data[:username], :repo => data[:repo]}
     end
   end
 

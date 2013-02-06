@@ -1,16 +1,18 @@
 require 'spec_helper'
 
 describe HS::Command do
-  describe "#extract_username_from_url" do
+  describe "#parse_github_url" do
     cmd = HS::Command.new(true, true, true)
-    urls = ["http://github.com/username",
-             "https://github.com/username",
-             "http://github.com/username/foobar",
-             "http://www.github.com/username"]
+    urls = ["http://github.com/username/repo",
+            "https://github.com/username/repo",
+            "http://github.com/username/repo/extra",
+            "http://www.github.com/username/repo"]
 
     urls.each do |url|
-      it "extracts 'username' from '#{url}'" do
-        cmd.send(:extract_username_from_url, url).should eq("username")
+      it "extracts username and repo from '#{url}'" do
+        parsed = cmd.send(:parse_github_url, url)
+        parsed[:username].should eq('username')
+        parsed[:repo].should eq('repo')
       end
     end
   end

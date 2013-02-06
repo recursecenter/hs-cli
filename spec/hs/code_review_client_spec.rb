@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe HS::CodeReviewClient do
+  include Helpers
+
   before(:each) do
     @secret = "secret"
     @client = HS::CodeReviewClient.new(@secret)
@@ -23,8 +25,14 @@ describe HS::CodeReviewClient do
       end
     end
 
-    it "POSTs with sufficient args" do
-      @client.request(:body => true, :repo => true).code.should eq("200")
+    it "POSTs with sufficient symbol args" do
+      data = hash_with_keys [:body, :repo, :github_account]
+      @client.request(data).code.should eq('200')
+    end
+
+    it "POSTs with sufficient string args" do
+      data = hash_with_keys ['body', 'repo', 'github_account']
+      @client.request(data).code.should eq('200')
     end
   end
 
@@ -37,9 +45,16 @@ describe HS::CodeReviewClient do
       end
     end
 
-    it "POSTs with sufficient args" do
-      @client.respond(:url => true, :repo => true, :base_repo => true).code.
-        should eq("200")
+    context "POSTs with sufficient args" do
+      data = [:url, :repo, :base_repo, :base_github]
+
+      it "that are symbols" do
+        @client.respond(hash_with_keys(data)).code.should eq('200')
+      end
+
+      it "that are strings" do
+        @client.respond(hash_with_keys(data.map(&:to_s))).code.should eq('200')
+      end
     end
   end
 end
