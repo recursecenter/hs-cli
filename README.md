@@ -38,3 +38,4 @@ hs submit [-m,--message]
 ~/dev/new-feature-review $ hs submit -m "I made granular commits with descriptions of each change. Let me know if you have any questions!"
 ## pushes to GH and issues a pull request
 ```
+
