@@ -14,6 +14,7 @@ spec = Gem::Specification.new do |s|
   s.add_development_dependency('rspec')
   s.add_development_dependency('webmock')
   s.add_development_dependency('vcr')
+  s.add_development_dependency('pry')
 
   s.add_runtime_dependency('gli', '~> 2.5.3')
   s.add_runtime_dependency('netrc', '~> 0.7.7')
@@ -23,6 +24,8 @@ spec = Gem::Specification.new do |s|
   s.require_paths = ['lib']
   s.files = `git ls-files`.split("\n")
   s.test_files = `git ls-files -- {test,spec,features}/*`.split("\n")
-  s.executables = `git ls-files -- {bin/*}`.split("\n").map { |f| File.basename(f) }
+
+  s.bindir = 'bin'
+  s.executables = 'hs'
 
 end

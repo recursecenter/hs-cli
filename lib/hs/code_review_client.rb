@@ -55,8 +55,7 @@ module HS
 
       req = ::Net::HTTP::Post.new(url.path)
       req.form_data = @default_data.merge(data)
-      require 'pry'
-      binding.pry
+
       http.request(req)
     end
 
