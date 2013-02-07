@@ -15,10 +15,10 @@ spec = Gem::Specification.new do |s|
   s.add_development_dependency('webmock')
   s.add_development_dependency('vcr')
 
-  s.add_runtime_dependency('gli', '2.5.3')
-  s.add_runtime_dependency('netrc', '0.7.7')
-  s.add_runtime_dependency('git', '1.2.5')
-  s.add_runtime_dependency('octokit', '1.22.0')
+  s.add_runtime_dependency('gli', '~> 2.5.3')
+  s.add_runtime_dependency('netrc', '~> 0.7.7')
+  s.add_runtime_dependency('git', '~> 1.2.5')
+  s.add_runtime_dependency('octokit', '~> 1.22.0')
 
   s.require_paths = ['lib']
   s.files = `git ls-files`.split("\n")
