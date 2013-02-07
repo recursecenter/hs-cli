@@ -1,7 +1,7 @@
 require 'net/http'
 
 module HS
-  API_URL = "#{ENV['HS_API_URL'] || "https://hackerschool.com"}/api/alpha"
+  API_URL = "#{ENV['HS_API_URL'] || "https://www.hackerschool.com"}/api/alpha"
 
   class CodeReviewClient
     def initialize(api_secret)
@@ -46,13 +46,18 @@ module HS
     private
 
     def post(resource, data)
-      uri = URI.parse "#{API_URL}/person/#{resource}"
-      http = ::Net::HTTP.new uri.host, uri.port
+      url = URI.parse("#{API_URL}/person/#{resource}")
+      http = ::Net::HTTP.new(url.host, url.port)
 
-      request = ::Net::HTTP::Post.new uri.request_uri
-      request.set_form_data @default_data.merge(data)
+      if url.scheme == 'https'
+        http.use_ssl = true
+      end
 
-      response = http.request(request)
+      req = ::Net::HTTP::Post.new(url.path)
+      req.form_data = @default_data.merge(data)
+      require 'pry'
+      binding.pry
+      http.request(req)
     end
 
     def validate_keys!(data, keys)
