@@ -1,5 +1,11 @@
 require_relative '../lib/hs'
 
+Dir.glob('../lib/hs/commands/*') do |rel_path|
+  if rel_path.end_with? '.rb'
+    require_relative rel_path.chomp('.rb')
+  end
+end
+
 require 'rspec'
 require 'webmock/rspec'
 require 'vcr'
