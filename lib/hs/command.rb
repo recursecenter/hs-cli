@@ -34,7 +34,14 @@ module HS
 
     def prompt_message(initial_value)
       input = editor_input(initial_value)
-      input.split("\n").reject { |l| l.start_with? "#" }.join("\n")
+        .split("\n").reject { |l| l.start_with? "#" }.join("\n")
+
+      if input.empty?
+        $stderr.puts "Empty message. Aborting."
+        exit(1)
+      else
+        input
+      end
     end
 
     def github_url_data(url)
