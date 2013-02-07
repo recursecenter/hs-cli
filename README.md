@@ -1,4 +1,4 @@
-**Installation:**
+### Installation:
 
 ```sh
 ~/dev/hs-cli $ rake gem && cd pkg
@@ -22,7 +22,7 @@ Hacker School code review requested for my-project:new-feature. Please remember 
 ## links to https://github.com/username/my-project/compare/new-feature...master
 ```
 
-**Review code:**
+### Review code:
 
 ```
 hs review gh-username/repo[:branch] [-b,--branch] [folder]
@@ -44,4 +44,14 @@ hs submit [-m,--message]
 
 ~/dev/new-feature-review $ hs submit -m "I made granular commits with descriptions of each change. Let me know if you have any questions!"
 ## pushes to GH and issues a pull request
+```
+
+### Development:
+
+**Here be dragons.**
+
+Right now there's no way to mock API calls to GitHub, so beware that commands issued during development may be side-affecting. To prevent API calls from going to www.hackerschool.com, set HS_API_URL in your environment:
+
+```sh
+export HS_API_URL="http://localhost:5000"
 ```
