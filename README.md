@@ -1,3 +1,10 @@
+**Installation:**
+
+```sh
+~/dev/hs-cli $ rake gem && cd pkg
+~/dev/hs-cli/pkg $ gem install hs
+```
+
 **Request code review:**
 
 ```
@@ -38,4 +45,3 @@ hs submit [-m,--message]
 ~/dev/new-feature-review $ hs submit -m "I made granular commits with descriptions of each change. Let me know if you have any questions!"
 ## pushes to GH and issues a pull request
 ```
-
