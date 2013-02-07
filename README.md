@@ -5,7 +5,7 @@
 ~/dev/hs-cli/pkg $ gem install hs
 ```
 
-**Request code review:**
+### Request code review:
 
 ```
 hs request [-b,--branch] [-m,--message]
@@ -48,9 +48,7 @@ hs submit [-m,--message]
 
 ### Development:
 
-**Here be dragons.**
-
-Right now there's no way to mock API calls to GitHub, so beware that commands issued during development may be side-affecting. To prevent API calls from going to www.hackerschool.com, set HS_API_URL in your environment:
+**Here be dragons.** Right now there's no way to mock API calls to GitHub, so beware that commands issued during development may be side-affecting. To prevent API calls from going to www.hackerschool.com, set `HS_API_URL` in your environment:
 
 ```sh
 export HS_API_URL="http://localhost:5000"
