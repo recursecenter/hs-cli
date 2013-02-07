@@ -8,7 +8,7 @@ module HS
     module_function
 
     def api_secret
-      File.read(HSCONFIG_FILE)
+      File.read(HSCONFIG_FILE).chomp
     end
 
     def require_credentials
