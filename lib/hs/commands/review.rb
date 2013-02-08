@@ -1,5 +1,3 @@
-require 'git'
-
 module HS
   module Command extend self
 
@@ -13,9 +11,8 @@ module HS
       clone_url = resp[:clone_url]
       source_url = resp[:source][:clone_url]
 
-      # TODO: make error message
       unless clone_url && source_url
-        $stderr.puts "Error message"
+        $stderr.puts "Fork failed. Got response:\n#{resp}"
         exit(1)
       end
 
@@ -23,7 +20,7 @@ module HS
       git = ::Git.clone(source_url, args[:name])
 
       unless git
-        $stderr.puts "Error message 2"
+        $stderr.puts "Cloning #{source_url} to #{args[:name]} failed."
         exit(1)
       end
 
@@ -50,7 +47,8 @@ EOS
       username, repo_branch = repo_arg.split('/')
 
       unless username && repo_branch
-        raise CommandError, "Username and repo must be specified."
+        $stderr.puts "Username and repo must be specified."
+        exit(1)
       end
 
       repo, branch = repo_branch.split(':')

@@ -14,7 +14,8 @@ module HS
       begin resp.value
         puts "Hacker School code review requested for #{origin_data[:repo]}:#{@opts[:branch]}.\nPlease remember to push recent changes to GitHub!"
       rescue ::Net::HTTPError
-        puts resp.body
+        $stderr.puts resp.body
+        exit(1)
       end
     end
 
