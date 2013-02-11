@@ -25,7 +25,8 @@ module HS
       end
 
       git.add_remote('upstream', base_url)
-      git.remote('origin').remove
+      # XXX: ruby-git's remote rm is broken; this is a workaround.
+      git.lib.send(:command, 'remote', ['rm', 'origin'])
       git.add_remote('origin', origin_url)
 
       git.branch(review_branch).checkout
