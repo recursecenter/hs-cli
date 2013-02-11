@@ -8,32 +8,35 @@ module HS
       puts "Forking..."
       resp = @gh.fork("#{args[:username]}/#{args[:repo]}")
 
-      clone_url = resp[:clone_url]
-      source_url = resp[:source][:clone_url]
+      origin_url = resp[:clone_url]
+      base_url = resp[:source][:clone_url]
 
-      unless clone_url && source_url
+      unless origin_url && base_url
         $stderr.puts "Fork failed. Got response:\n#{resp}"
         exit(1)
       end
 
       puts "Cloning locally..."
-      git = ::Git.clone(source_url, args[:name])
+      git = ::Git.clone(base_url, args[:name])
 
       unless git
-        $stderr.puts "Cloning #{source_url} to #{args[:name]} failed."
+        $stderr.puts "Cloning #{base_url} to #{args[:name]} failed."
         exit(1)
       end
 
+      git.add_remote('upstream', base_url)
+      git.remote('origin').remove
+      git.add_remote('origin', origin_url)
+
       git.branch(review_branch).checkout
       git.push(git.remote('origin'), review_branch)
-      git.add_remote('upstream', source_url)
 
-      resp = @hs.respond(:url => "#{clone_url.chomp('.git')}/tree/#{review_branch}",
+      resp = @hs.respond(:url => "#{origin_url.chomp('.git')}/tree/#{review_branch}",
                          :repo => args[:repo],
                          :branch => review_branch,
                          :base_repo => args[:repo],
                          :base_branch => args[:branch],
-                         :base_github => github_url_data(source_url)[:username],
+                         :base_github => github_url_data(base_url)[:username],
                          :completed => false)
 
       puts <<EOS
