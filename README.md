@@ -53,3 +53,7 @@ hs submit [-m,--message]
 ```sh
 export HS_API_URL="http://localhost:5000"
 ```
+
+### License:
+
+This code is licensed under the GPL v3: https://www.gnu.org/licenses/gpl.html
