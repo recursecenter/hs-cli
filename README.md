@@ -1,3 +1,9 @@
+### Introduction:
+
+hs-cli is a code review tool for use at Hacker School. You will require the
+Hacker School secret API key to ask for code reviews. The tool is provided as
+a ruby gem.
+
 ### Installation:
 
 ```sh
